@@ -1,0 +1,11 @@
+-- lib-log-js: modules this package provides (entry defaults to
+-- src/index.hnl; N modules resolve to src/<name>/index.hnl).
+{
+  deps: { js: "branch:main", log: "branch:main" },
+  modules: ["log-js"],
+  name: "log-js",
+  description: "JavaScript backend of the log contract — leveled records to console.* via the js ffi.",
+  license: "MIT",
+  keywords: ["log", "logging", "console", "js", "backend"],
+  homepage: "https://github.com/handl-lang/lib-log-js",
+}

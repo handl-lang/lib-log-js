@@ -7,65 +7,65 @@
 
 from "./index" import * as m
 
-res_tag :: r ~> match r { ok(_): "ok", err(_): "err", _: "?" }
+res_tag := r ~> match r { ok(_): "ok", err(_): "err", _: "?" }
 
 -- levels -----------------------------------------------------------------
 
-test_rank_trace :: assert m.level_rank("trace") = 0
-test_rank_debug :: assert m.level_rank("debug") = 1
-test_rank_info :: assert m.level_rank("info") = 2
-test_rank_warn :: assert m.level_rank("warn") = 3
-test_rank_error :: assert m.level_rank("error") = 4
-test_rank_fatal :: assert m.level_rank("fatal") = 5
-test_rank_unknown :: assert m.level_rank("bogus") = -1
-test_rank_empty :: assert m.level_rank("") = -1
+test_rank_trace := assert m.level_rank("trace") == 0
+test_rank_debug := assert m.level_rank("debug") == 1
+test_rank_info := assert m.level_rank("info") == 2
+test_rank_warn := assert m.level_rank("warn") == 3
+test_rank_error := assert m.level_rank("error") == 4
+test_rank_fatal := assert m.level_rank("fatal") == 5
+test_rank_unknown := assert m.level_rank("bogus") == -1
+test_rank_empty := assert m.level_rank("") == -1
 
 -- logger algebra -----------------------------------------------------------
 
-test_make_min :: assert m.make("info", null).min_level = "info"
-test_make_attrs :: assert m.make("info", { a: 1 }).attrs = { a: 1 }
-test_make_null_attrs :: assert m.make("info", null).attrs = {}
-test_make_bad_level :: assert res_tag(error.try((x) ~> m.make("bogus", null))) = "err"
+test_make_min := assert m.make("info", null).min_level == "info"
+test_make_attrs := assert m.make("info", { a: 1 }).attrs == { a: 1 }
+test_make_null_attrs := assert m.make("info", null).attrs == {}
+test_make_bad_level := assert res_tag(error.try((x) ~> m.make("bogus", null))) == "err"
 
-test_with_level :: assert m.with_level(m.make("info", null), "debug").min_level = "debug"
-test_with_level_keeps_attrs :: assert m.with_level(m.make("info", { a: 1 }), "debug").attrs = { a: 1 }
-test_with_level_bad :: assert res_tag(error.try((x) ~> m.with_level(m.make("info", null), "bogus"))) = "err"
+test_with_level := assert m.with_level(m.make("info", null), "debug").min_level == "debug"
+test_with_level_keeps_attrs := assert m.with_level(m.make("info", { a: 1 }), "debug").attrs == { a: 1 }
+test_with_level_bad := assert res_tag(error.try((x) ~> m.with_level(m.make("info", null), "bogus"))) == "err"
 
-test_child_merges :: assert m.child(m.make("info", { a: 1, b: 2 }), { b: 3, c: 4 }).attrs = { a: 1, b: 3, c: 4 }
-test_child_null_attrs :: assert m.child(m.make("info", { a: 1 }), null).attrs = { a: 1 }
-test_child_chain :: assert m.child(m.child(m.make("info", { a: 1 }), { b: 2 }), { c: 3 }).attrs = { a: 1, b: 2, c: 3 }
-test_child_keeps_min :: assert m.child(m.make("warn", null), { a: 1 }).min_level = "warn"
+test_child_merges := assert m.child(m.make("info", { a: 1, b: 2 }), { b: 3, c: 4 }).attrs == { a: 1, b: 3, c: 4 }
+test_child_null_attrs := assert m.child(m.make("info", { a: 1 }), null).attrs == { a: 1 }
+test_child_chain := assert m.child(m.child(m.make("info", { a: 1 }), { b: 2 }), { c: 3 }).attrs == { a: 1, b: 2, c: 3 }
+test_child_keeps_min := assert m.child(m.make("warn", null), { a: 1 }).min_level == "warn"
 
 -- should_log ----------------------------------------------------------------
 
-test_should_log_pass :: assert m.should_log(m.make("info", null), "warn") = true
-test_should_log_equal :: assert m.should_log(m.make("info", null), "info") = true
-test_should_log_drop :: assert m.should_log(m.make("info", null), "debug") = false
-test_should_log_unknown :: assert m.should_log(m.make("info", null), "bogus") = false
-test_should_log_child :: assert m.should_log(m.child(m.make("info", null), { x: 1 }), "error") = true
+test_should_log_pass := assert m.should_log(m.make("info", null), "warn") == true
+test_should_log_equal := assert m.should_log(m.make("info", null), "info") == true
+test_should_log_drop := assert m.should_log(m.make("info", null), "debug") == false
+test_should_log_unknown := assert m.should_log(m.make("info", null), "bogus") == false
+test_should_log_child := assert m.should_log(m.child(m.make("info", null), { x: 1 }), "error") == true
 
 -- format --------------------------------------------------------------------
 
-test_format_plain :: assert m.format("TS", "info", "hello", null) = "INFO TS hello"
-test_format_level_case :: assert m.format("TS", "warn", "m", null) = "WARN TS m"
-test_format_attrs :: assert m.format("TS", "info", "m", { a: 1, b: "ok" }) = "INFO TS m a=1 b=ok"
-test_format_quoted :: assert m.format("TS", "info", "m", { b: "x y" }) = "INFO TS m b=\"x y\""
-test_format_empty_string_quoted :: assert m.format("TS", "info", "m", { b: "" }) = "INFO TS m b=\"\""
-test_format_quote_escaped :: assert m.format("TS", "info", "m", { b: "a\"b" }) = "INFO TS m b=\"a\\\"b\""
-test_format_backslash_escaped :: assert m.format("TS", "info", "m", { b: "a\\b" }) = "INFO TS m b=\"a\\\\b\""
-test_format_null_attr :: assert m.format("TS", "info", "m", { b: null }) = "INFO TS m b=null"
-test_format_bad_level :: assert res_tag(error.try((x) ~> m.format("TS", "bogus", "m", null))) = "err"
+test_format_plain := assert m.format("TS", "info", "hello", null) == "INFO TS hello"
+test_format_level_case := assert m.format("TS", "warn", "m", null) == "WARN TS m"
+test_format_attrs := assert m.format("TS", "info", "m", { a: 1, b: "ok" }) == "INFO TS m a=1 b=ok"
+test_format_quoted := assert m.format("TS", "info", "m", { b: "x y" }) == "INFO TS m b=\"x y\""
+test_format_empty_string_quoted := assert m.format("TS", "info", "m", { b: "" }) == "INFO TS m b=\"\""
+test_format_quote_escaped := assert m.format("TS", "info", "m", { b: "a\"b" }) == "INFO TS m b=\"a\\\"b\""
+test_format_backslash_escaped := assert m.format("TS", "info", "m", { b: "a\\b" }) == "INFO TS m b=\"a\\\\b\""
+test_format_null_attr := assert m.format("TS", "info", "m", { b: null }) == "INFO TS m b=null"
+test_format_bad_level := assert res_tag(error.try((x) ~> m.format("TS", "bogus", "m", null))) == "err"
 
 -- emission (needs a JS host — `js.call` console.*/Date.now) -------------------
 
-test_log_returns_null :: assert m.log(m.make("info", null), "info", "smoke", null) = null
-test_info_smoke :: assert m.info(m.make("info", null), "smoke info", { a: 1 }) = null
-test_debug_filtered :: assert m.debug(m.make("warn", null), "never seen", null) = null
-test_log_filtered :: assert m.log(m.make("error", null), "debug", "never seen", null) = null
-test_warn_smoke :: assert m.warn(m.make("warn", null), "smoke warn", null) = null
-test_error_smoke :: assert m.error(m.make("error", null), "smoke error", null) = null
-test_fatal_smoke :: assert m.fatal(m.make("fatal", null), "smoke fatal", null) = null
-test_trace_smoke :: assert m.trace(m.make("trace", null), "smoke trace", null) = null
-test_log_bad_level :: assert res_tag(error.try((x) ~> m.log(m.make("info", null), "bogus", "x", null))) = "err"
-test_child_emit :: assert m.info(m.child(m.make("info", { app: "t" }), { req: 7 }), "child smoke", { extra: true }) = null
-test_flush :: assert m.flush(m.make("info", null)) = null
+test_log_returns_null := assert m.log(m.make("info", null), "info", "smoke", null) == null
+test_info_smoke := assert m.info(m.make("info", null), "smoke info", { a: 1 }) == null
+test_debug_filtered := assert m.debug(m.make("warn", null), "never seen", null) == null
+test_log_filtered := assert m.log(m.make("error", null), "debug", "never seen", null) == null
+test_warn_smoke := assert m.warn(m.make("warn", null), "smoke warn", null) == null
+test_error_smoke := assert m.error(m.make("error", null), "smoke error", null) == null
+test_fatal_smoke := assert m.fatal(m.make("fatal", null), "smoke fatal", null) == null
+test_trace_smoke := assert m.trace(m.make("trace", null), "smoke trace", null) == null
+test_log_bad_level := assert res_tag(error.try((x) ~> m.log(m.make("info", null), "bogus", "x", null))) == "err"
+test_child_emit := assert m.info(m.child(m.make("info", { app: "t" }), { req: 7 }), "child smoke", { extra: true }) == null
+test_flush := assert m.flush(m.make("info", null)) == null

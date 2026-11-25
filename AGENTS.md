@@ -12,7 +12,7 @@ console via the host-injected `js.call` marshaller
 | `src/index.hnl` | the full `lib-log` surface as a single module |
 | `src/index.test.hnl` | the .hnl test suite |
 | `pkg.hnl` | manifest — `deps: { js, log: "branch:main" }` |
-| `scripts/hnl-gate.sh`, `ci.sh` | the gate / bupha entry |
+| `scripts/hnl-gate.sh`, `workflows/gate.yaml` | the gate / bupha entry |
 
 ## Contract
 

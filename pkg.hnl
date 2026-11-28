@@ -1,7 +1,11 @@
 -- lib-log-js: modules this package provides (entry defaults to
 -- src/index.hnl; N modules resolve to src/<name>/index.hnl).
 {
-  deps: { js: "branch:main", log: "branch:main" },
+  -- `js` is intentionally NOT a dep: it is a host/builtin contract
+  -- (compile-js binds `from "js"` to __handl_rt shims regardless of dep
+  -- tables); declaring it resolves `js` to lib-js's signature-erased
+  -- exports instead of the ambient `js.*` call_host surface. See AGENTS.md.
+  deps: { log: "branch:main" },
   modules: ["log-js"],
   name: "log-js",
   description: "JavaScript backend of the log contract — leveled records to console.* via the js ffi.",

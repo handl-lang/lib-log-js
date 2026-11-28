@@ -1,5 +1,4 @@
 [dependencies]
-js = { path = "../lib-js/src" }
 log = { path = "../lib-log/src" }
 
 # own package

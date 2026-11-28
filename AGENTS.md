@@ -11,7 +11,7 @@ console via the host-injected `js.call` marshaller
 | --- | --- |
 | `src/index.hnl` | the full `lib-log` surface as a single module |
 | `src/index.test.hnl` | the .hnl test suite |
-| `pkg.hnl` | manifest — `deps: { js, log: "branch:main" }` |
+| `pkg.hnl` | manifest — dep `log` only (`js` is a host/builtin contract, NOT a dep — see Contract) |
 | `scripts/hnl-gate.sh`, `workflows/gate.yaml` | the gate / bupha entry |
 
 ## Contract
@@ -21,6 +21,15 @@ console via the host-injected `js.call` marshaller
   text line carries level + ISO-8601-UTC timestamp + message, and the
   merged attrs ride as a real JS object (`js_object` descriptor, the
   `lib-json-js`/`lib-fetch-js` choice); omitted when empty.
+- `js` stays out of `pkg.hnl` `deps` and `.handl.toml`
+  `[dependencies]`: the `js` contract is a host/builtin surface
+  (compile-js binds `from "js"` to `__handl_rt` shims regardless of
+  dep tables). Declaring the dep makes `hnl run`/`hnl test` resolve
+  `js` to `lib-js`'s signature-only exports — `call` erases to `null`
+  and every call dies with "callee is not an arrow-value". Undeclared,
+  the import lowers to the ambient `"js.call"` callee and fails
+  honestly as `call_host: function 'js.call' not found` on hosts
+  without JS natives.
 - Emission tests need a JS host: without `js` natives the `js.call`
   sites surface as `call_host` failures, which `hnl-gate.sh` tolerates
   (the `lib-json-js` convention). The 37 pure-surface tests run
